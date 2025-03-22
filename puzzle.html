@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logical Puzzles</title>
+  <link href="https://fonts.googleapis.com/css?family=Comic+Sans+MS|Luckiest+Guy" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Luckiest Guy', cursive;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .game-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      max-width: 90%;
+      width: 600px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      color: #ff6f61;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .puzzle-question {
+      font-size: 1.5rem;
+      margin: 20px 0;
+      color: #1e88e5;
+    }
+
+    .puzzle-options {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+
+    .puzzle-option {
+      padding: 10px 20px;
+      background-color: #4a90e2;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .puzzle-option:hover {
+      background-color: #3b7bbf;
+      transform: scale(1.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /* Confetti Animation */
+    @keyframes confetti {
+      0% { transform: translateY(-100vh) rotate(0); }
+      100% { transform: translateY(100vh) rotate(360deg); }
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #ff0;
+      animation: confetti 2s linear infinite;
+      z-index: 1;
+    }
+
+    /* Feedback Animation */
+    .feedback {
+      text-align: center;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      transition: opacity 0.5s ease;
+    }
+
+    .correct {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .incorrect {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .solution {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #1e88e5;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Logical Puzzles</h1>
+    <div class="puzzle-question" id="puzzle-question"></div>
+    <div class="puzzle-options" id="puzzle-options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="solution" id="solution"></div>
+    <button onclick="resetGame()">Reset Game</button>
+    <button onclick="nextPuzzle()">Next Puzzle</button>
+  </div>
+
+  <!-- Confetti Container -->
+  <div id="animations"></div>
+
+  <script>
+    let currentPuzzle;
+    let score = 0;
+
+    function generateNumberPattern() {
+      const patterns = [
+        {
+          type: "arithmetic",
+          sequence: [],
+          difference: Math.floor(Math.random() * 10) + 1, // Random difference
+          answer: 0,
+          explanation: ""
+        },
+        {
+          type: "geometric",
+          sequence: [],
+          ratio: Math.floor(Math.random() * 5) + 1, // Random ratio
+          answer: 0,
+          explanation: ""
+        },
+        {
+          type: "square",
+          sequence: [],
+          answer: 0,
+          explanation: ""
+        },
+        {
+          type: "fibonacci",
+          sequence: [],
+          answer: 0,
+          explanation: ""
+        }
+      ];
+
+      const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
+
+      // Generate sequence based on pattern type
+      let start = Math.floor(Math.random() * 20) + 1; // Random starting number
+      switch (selectedPattern.type) {
+        case "arithmetic":
+          selectedPattern.sequence = [start, start + selectedPattern.difference, start + 2 * selectedPattern.difference];
+          selectedPattern.answer = start + 3 * selectedPattern.difference;
+          selectedPattern.explanation = `This is an arithmetic sequence. Each number increases by ${selectedPattern.difference}.`;
+          break;
+        case "geometric":
+          selectedPattern.sequence = [start, start * selectedPattern.ratio, start * Math.pow(selectedPattern.ratio, 2)];
+          selectedPattern.answer = start * Math.pow(selectedPattern.ratio, 3);
+          selectedPattern.explanation = `This is a geometric sequence. Each number is multiplied by ${selectedPattern.ratio}.`;
+          break;
+        case "square":
+          selectedPattern.sequence = [start, Math.pow(start, 2), Math.pow(start + 1, 2)];
+          selectedPattern.answer = Math.pow(start + 2, 2);
+          selectedPattern.explanation = `This is a square sequence. Each number is the square of ${start}, ${start + 1}, and ${start + 2}.`;
+          break;
+        case "fibonacci":
+          selectedPattern.sequence = [start, start, start * 2, start * 3];
+          selectedPattern.answer = selectedPattern.sequence[selectedPattern.sequence.length - 1] + selectedPattern.sequence[selectedPattern.sequence.length - 2];
+          selectedPattern.explanation = `This is a Fibonacci sequence. Each number is the sum of the two preceding numbers.`;
+          break;
+      }
+
+      return selectedPattern;
+    }
+
+    function initPuzzleGame() {
+      const pattern = generateNumberPattern();
+      currentPuzzle = {
+        question: `What comes next? ${pattern.sequence.join(", ")}`,
+        options: [
+          pattern.answer,
+          pattern.answer + Math.floor(Math.random() * 10) + 1, // Random incorrect option
+          pattern.answer - Math.floor(Math.random() * 10) - 1 // Random incorrect option
+        ],
+        answer: pattern.answer,
+        explanation: pattern.explanation
+      };
+
+      // Shuffle options
+      currentPuzzle.options.sort(() => Math.random() - 0.5);
+
+      document.getElementById("puzzle-question").textContent = currentPuzzle.question;
+      const optionsDiv = document.getElementById("puzzle-options");
+      optionsDiv.innerHTML = "";
+      currentPuzzle.options.forEach((option) => {
+        const optionElement = document.createElement("div");
+        optionElement.classList.add("puzzle-option");
+        optionElement.textContent = option;
+        optionElement.addEventListener("click", () => checkPuzzleAnswer(option));
+        optionsDiv.appendChild(optionElement);
+      });
+
+      // Clear feedback and solution
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("solution").textContent = "";
+    }
+
+    function checkPuzzleAnswer(selected) {
+      const feedback = document.getElementById("feedback");
+      const solution = document.getElementById("solution");
+      if (selected === currentPuzzle.answer) {
+        feedback.textContent = "Correct! 🎉";
+        feedback.className = "feedback correct";
+        score += 10; // +10 points for correct answer
+        showConfetti();
+        playSound('correct');
+      } else {
+        feedback.textContent = "Incorrect! 😕";
+        feedback.className = "feedback incorrect";
+        playSound('incorrect');
+      }
+      // Show solution explanation
+      solution.textContent = currentPuzzle.explanation;
+    }
+
+    function resetGame() {
+      initPuzzleGame();
+    }
+
+    function nextPuzzle() {
+      // Clear feedback and solution
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("solution").textContent = "";
+
+      // Generate a new puzzle
+      initPuzzleGame();
+    }
+
+    function showConfetti() {
+      const animationsContainer = document.getElementById("animations");
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.animationDelay = `${Math.random() * 2}s`;
+        animationsContainer.appendChild(confetti);
+      }
+      setTimeout(() => {
+        animationsContainer.innerHTML = "";
+      }, 3000);
+    }
+
+    function playSound(type) {
+      const audio = new Audio();
+      if (type === 'correct') {
+        audio.src = "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"; // Cheerful bell sound
+      } else {
+        audio.src = "https://www.soundjay.com/misc/sounds/boing-1.mp3"; // Kid-friendly "boing" sound
+      }
+      audio.play();
+    }
+
+    initPuzzleGame();
+  </script>
+</body>
+</html>

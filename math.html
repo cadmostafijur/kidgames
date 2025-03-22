@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Challenge</title>
+  <link href="https://fonts.googleapis.com/css?family=Comic+Sans+MS|Luckiest+Guy" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Add the same styles as in your original math game */
+  </style>
+</head>
+<body>
+  <div class="game-container" id="intro-screen">
+    <h1>Math Challenge</h1>
+    <div class="player-name">
+      <label for="player-name">Enter your name:</label>
+      <input type="text" id="player-name" placeholder="Your name">
+    </div>
+    <div class="grade-select">
+      <label for="grade-level">Select Level:</label>
+      <select id="grade-level">
+        <option value="3">Easy</option>
+        <option value="4">Medium</option>
+        <option value="5">Hard</option>
+        <option value="6">Extreme</option>
+      </select>
+    </div>
+    <h2>Rules:</h2>
+    <ul>
+      <li>You have 3 minutes to answer as many questions as possible</li>
+      <li>Each correct answer: +3 points</li>
+      <li>Each incorrect answer: -1 point</li>
+      <li id="operations-list">Questions will include addition and subtraction</li>
+    </ul>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <div class="game-container" id="game-screen" style="display: none;">
+    <div class="stats">
+      <div class="score">Score: <span id="score">0</span></div>
+      <div class="timer">Time: <span id="timer">3:00</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+    <div class="question" id="question"></div>
+    <input type="number" id="answer" placeholder="Your answer" step="any" autofocus>
+    <button onclick="checkAnswer()">Submit</button>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="game-container" id="result-screen" style="display: none;">
+    <div class="game-over" id="congrats-message"></div>
+    <h1>Game Over!</h1>
+    <h2>Final Score: <span id="final-score">0</span></h2>
+    <div class="result-stats">
+      <div class="stat-box" style="background-color: #d4edda;">
+        <h3 id="correct-count">0</h3>
+        <p>Correct</p>
+      </div>
+      <div class="stat-box" style="background-color: #f8d7da;">
+        <h3 id="incorrect-count">0</h3>
+        <p>Incorrect</p>
+      </div>
+      <div class="stat-box" style="background-color: #e2f0fd;">
+        <h3 id="total-count">0</h3>
+        <p>Total Questions</p>
+      </div>
+      <div class="stat-box" style="background-color: #e6d9f2;">
+        <h3 id="accuracy">0%</h3>
+        <p>Accuracy</p>
+      </div>
+    </div>
+    <button onclick="resetGame()">Play Again</button>
+  </div>
+  <script>
+    // Add the same JavaScript logic as in your original math game
+    function generateQuestion() {
+  gradeLevel = parseInt(document.getElementById("grade-level").value);
+  let operations = ["addition", "subtraction"];
+  
+  if (gradeLevel >= 4) {
+    operations.push("multiplication");
+  }
+  
+  if (gradeLevel >= 5) {
+    operations.push("division");
+    operations.push("fractions");
+    operations.push("bodmas-simple");
+    if (Math.random() > 0.7) {
+      operations.push("bodmas-medium");
+    }
+  }
+  
+  const operation = operations[Math.floor(Math.random() * operations.length)];
+  let num1, num2, num3;
+  
+  switch (operation) {
+    case "addition":
+      const addMax = gradeLevel === 3 ? 50 : (gradeLevel === 4 ? 100 : 1000);
+      num1 = Math.floor(Math.random() * addMax) + 1;
+      num2 = Math.floor(Math.random() * addMax) + 1;
+      currentQuestion = {
+        text: `${num1} + ${num2} = ?`,
+        answer: num1 + num2
+      };
+      break;
+      
+    case "subtraction":
+      if (gradeLevel === 3) {
+        num1 = Math.floor(Math.random() * 50) + 26;
+        num2 = Math.floor(Math.random() * 25) + 1;
+      } else {
+        const subMax = gradeLevel === 4 ? 100 : 1000;
+        num1 = Math.floor(Math.random() * subMax) + 1;
+        num2 = Math.floor(Math.random() * subMax) + 1;
+      }
+      currentQuestion = {
+        text: `${num1} - ${num2} = ?`,
+        answer: num1 - num2
+      };
+      break;
+      
+    case "multiplication":
+      if (gradeLevel === 4) {
+        num1 = Math.floor(Math.random() * 9) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+      } else {
+        num1 = Math.floor(Math.random() * 90) + 10;
+        num2 = Math.floor(Math.random() * 9) + 1;
+      }
+      currentQuestion = {
+        text: `${num1} × ${num2} = ?`,
+        answer: num1 * num2
+      };
+      break;
+      
+    case "division":
+      if (Math.random() > 0.7) {
+        num1 = Math.floor(Math.random() * 100) + 1;
+        num2 = Math.floor(Math.random() * 9) + 2;
+        let result = num1 / num2;
+        currentQuestion = {
+          text: `${num1} ÷ ${num2} = ? (Round to 2 decimal places)`,
+          answer: Math.round(result * 100) / 100
+        };
+      } else {
+        num2 = Math.floor(Math.random() * 9) + 2;
+        num3 = Math.floor(Math.random() * 10) + 1;
+        num1 = num2 * num3;
+        currentQuestion = {
+          text: `${num1} ÷ ${num2} = ?`,
+          answer: num3
+        };
+      }
+      break;
+      
+    case "fractions":
+      const denominators = [2, 3, 4, 5, 6, 8, 10];
+      const denominator = denominators[Math.floor(Math.random() * denominators.length)];
+      if (Math.random() > 0.5) {
+        num1 = Math.floor(Math.random() * 50) + 10;
+        const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+        currentQuestion = {
+          text: `${numerator}/${denominator} of ${num1} = ?`,
+          answer: (num1 * numerator) / denominator
+        };
+      } else {
+        const numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+        const decimal = Math.round((numerator / denominator) * 100) / 100;
+        currentQuestion = {
+          text: `Convert ${numerator}/${denominator} to a decimal.`,
+          answer: decimal
+        };
+      }
+      break;
+      
+    case "bodmas-simple":
+      const result = generateExpression('simple');
+      currentQuestion = {
+        text: `Calculate: ${result.expression} = ?`,
+        answer: result.answer
+      };
+      break;
+      
+    case "bodmas-medium":
+      const mediumResult = generateExpression('medium');
+      currentQuestion = {
+        text: `Calculate: ${mediumResult.expression} = ?`,
+        answer: mediumResult.answer
+      };
+      break;
+  }
+  
+  const questionEl = document.getElementById("question");
+  questionEl.textContent = currentQuestion.text;
+  questionEl.classList.add("fade-in");
+  setTimeout(() => {
+    questionEl.classList.remove("fade-in");
+  }, 500);
+}
+  </script>
+</body>
+</html>
